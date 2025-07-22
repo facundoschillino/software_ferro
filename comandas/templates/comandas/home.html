@@ -1,0 +1,37 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inicio - Sistema de Comandas</title>
+    <link rel="stylesheet" href="{% static 'comandas/css/styles.css' %}">
+</head>
+<body>
+    <h1>Sistema de Comandas</h1>
+
+    <!-- Sección de pedidos -->
+    <div class="section">
+        <h2>Pedidos</h2>
+        <div class="buttons">
+            <button onclick="location.href='{% url 'crear_pedido' %}'">
+                🆕 Iniciar nuevos pedidos
+            </button>
+            <button onclick="window.open('{% url 'pedidos_pendientes' %}', '_blank')">
+                📋 Ver pedidos pendientes
+            </button>
+        </div>
+    </div>
+
+    <!-- Sección de configuración -->
+    <div class="section">
+        <h2>Configuración</h2>
+        <div class="buttons">
+            <button onclick="location.href='{% url 'crear_plato' %}'">
+                ➕ Agregar plato
+            </button>
+            <button onclick="location.href='{% url 'crear_guarnicion' %}'">
+                ➕ Agregar guarnición
+            </button>
+        </div>
+    </div>
+</body>
+</html>

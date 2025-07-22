@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Crear Pedido – Comandas</title>
+  <link rel="stylesheet" href="{% static 'comandas/css/styles.css' %}">
+</head>
+<body>
+  <div class="container">
+
+    <!-- Botón volver al inicio -->
+    <div class="mb-4">
+      <a href="{% url 'home' %}" class="btn btn-danger">Volver al inicio</a>
+    </div>
+
+    <header class="mb-8">
+      <h1 class="text-2xl font-bold">Crear nuevo pedido</h1>
+    </header>
+
+    <!-- Formulario de nuevo pedido -->
+    <section class="mb-8">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group mb-4">
+          {{ form.numero.label_tag }}
+          {{ form.numero }}
+          {{ form.numero.errors }}
+        </div>
+        <div class="form-group mb-4">
+          {{ form.para_llevar.label_tag }}
+          {{ form.para_llevar }}
+          {{ form.para_llevar.errors }}
+        </div>
+        {{ form.estado }}
+        <button type="submit" class="btn btn-primary">Crear y agregar ítems</button>
+      </form>
+    </section>
+
+    <hr class="my-8">
+
+    <!-- Tabla de pedidos existentes -->
+    <section class="mt-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold">Pedidos cargados</h2>
+        <form method="post" action="{% url 'eliminar_todos_pedidos' %}" onsubmit="return confirm('¿Estás seguro de eliminar TODOS los pedidos?');">
+          {% csrf_token %}
+          <button type="submit" class="text-red-600 hover:underline">🗑️ Eliminar todos</button>
+        </form>
+      </div>
+
+      {% if pedidos_existentes %}
+        <table class="w-full table-auto border-collapse border border-gray-300">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="border px-4 py-2">Número</th>
+              <th class="border px-4 py-2">Para llevar</th>
+              <th class="border px-4 py-2">Estado</th>
+              <th class="border px-4 py-2">Cantidad de ítems</th>
+              <th class="border px-4 py-2">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for pedido in pedidos_existentes %}
+              <tr class="border-t">
+                <td class="px-4 py-2">{{ pedido.numero }}</td>
+                <td class="px-4 py-2">{{ pedido.para_llevar|yesno:"Sí,No" }}</td>
+                <td class="px-4 py-2">{{ pedido.estado }}</td>
+                <td class="px-4 py-2 text-center">{{ pedido.total_cantidad|default:"0" }}</td>
+                <td class="px-4 py-2">
+                  <div class="flex items-center gap-3">
+                    <!-- Botón Eliminar -->
+                    <form method="post" action="{% url 'eliminar_pedido' pedido.id %}" class="inline-block" onsubmit="return confirm('¿Estás seguro de eliminar este pedido?');">
+                      {% csrf_token %}
+                      <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+                    </form>
+
+                    <!-- Botón Completar -->
+                    {% if pedido.estado != "entregado" %}
+                      <form method="post" action="{% url 'completar_pedido' pedido.id %}" class="inline-block">
+                        {% csrf_token %}
+                        <button type="submit" class="text-green-600 hover:underline">Completar</button>
+                      </form>
+                    {% else %}
+                      <span class="text-gray-500 italic">Completado</span>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="text-gray-500">No hay pedidos aún.</p>
+      {% endif %}
+    </section>
+
+  </div>
+</body>
+</html>

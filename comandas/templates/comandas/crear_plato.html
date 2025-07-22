@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Platos – Comandas</title>
+  <link rel="stylesheet" href="{% static 'comandas/css/styles.css' %}">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h2>Agregar nuevo plato</h2>
+    </header>
+
+    <section class="form-container">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          {{ form.numero.label_tag }}
+          {{ form.nombre }}
+          {{ form.nombre.errors }}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </form>
+    </section>
+
+    <hr>
+
+    <section class="list-container">
+      <h3>Platos existentes</h3>
+      <ul class="item-list">
+        {% for plato in platos %}
+          <li class="item-list__entry">
+            <span class="item-list__text">{{ plato.nombre }}</span>
+            <a href="{% url 'eliminar_plato' plato.id %}"
+               class="btn btn-danger"
+               onclick="return confirm('¿Eliminar {{ plato.nombre }}?');">
+              🗑️
+            </a>
+          </li>
+        {% empty %}
+          <li class="item-list__entry">No hay platos cargados.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+</body>
+</html>
+
+

@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Guarniciones – Comandas</title>
+  <link rel="stylesheet" href="{% static 'comandas/css/styles.css' %}">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h2>Agregar nueva guarnición</h2>
+    </header>
+
+    <section class="form-container">
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+          {{ form.nombre.label_tag }}
+          {{ form.nombre }}
+          {{ form.nombre.errors }}
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </form>
+    </section>
+
+    <hr>
+
+    <section class="list-container">
+      <h3>Guarniciones existentes</h3>
+      <ul class="item-list">
+        {% for guarnicion in guarniciones %}
+          <li class="item-list__entry">
+            <span class="item-list__text">{{ guarnicion.nombre }}</span>
+            <a href="{% url 'eliminar_guarnicion' guarnicion.id %}"
+               class="btn btn-danger"
+               onclick="return confirm('¿Eliminar {{ guarnicion.nombre }}?');">
+              🗑️
+            </a>
+          </li>
+        {% empty %}
+          <li class="item-list__entry">No hay guarniciones cargadas.</li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+</body>
+</html>
+
+
