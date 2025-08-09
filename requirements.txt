@@ -2,3 +2,7 @@ asgiref==3.9.0
 Django==5.2.4
 sqlparse==0.5.3
 tzdata==2025.2
+dj-database-url==2.2.0
+psycopg2-binary
+whitenoise[brotli]==6.7.0
+gunicorn==23.0.0
