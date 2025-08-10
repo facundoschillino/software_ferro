@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
-# 1) Pararse donde está manage.py (si ya estás ahí, no pasa nada)
+# 1) Ir a la carpeta del manage.py
 if [ -f "./manage.py" ]; then
   ROOT="."
 else
@@ -9,26 +9,10 @@ else
   cd "$ROOT"
 fi
 
-# 2) Tareas previas (opcionales). Podés desactivar con RUN_COLLECTSTATIC=0 o RUN_MIGRATIONS=0
-: "${RUN_COLLECTSTATIC:=1}"
-: "${RUN_MIGRATIONS:=1}"
+# 2) Tareas previas
+python manage.py collectstatic --noinput
+python manage.py migrate --noinput
 
-if [ "$RUN_COLLECTSTATIC" = "1" ]; then
-  python manage.py collectstatic --noinput
-fi
-
-if [ "$RUN_MIGRATIONS" = "1" ]; then
-  python manage.py migrate --noinput
-fi
-
-# 3) Detectar si es ASGI o WSGI leyendo settings (genérico para cualquier proyecto)
-ASGI_APP="$(python manage.py shell -c 'from django.conf import settings; print(getattr(settings, "ASGI_APPLICATION", ""))' || true)"
-
-if [ -n "$ASGI_APP" ]; then
-  # ASGI (Channels/FastAPI híbridos, etc.)
-  exec uvicorn "$ASGI_APP" --host 0.0.0.0 --port "${PORT:-8000}"
-else
-  # WSGI (Django clásico)
-  WSGI_APP="$(python manage.py shell -c 'from django.conf import settings; print(settings.WSGI_APPLICATION)')"
-  exec gunicorn "$WSGI_APP" --bind "0.0.0.0:${PORT:-8000}"
-fi
+# 3) Leer WSGI_APPLICATION desde settings y lanzar Gunicorn
+WSGI_APP="$(python manage.py shell -c 'from django.conf import settings; print(settings.WSGI_APPLICATION)')"
+exec gunicorn "$WSGI_APP" --bind "0.0.0.0:${PORT:-8000}"
