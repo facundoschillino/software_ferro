@@ -1,37 +1,98 @@
 {% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Inicio - Sistema de Comandas</title>
-    <link rel="stylesheet" href="{% static 'comandas/css/styles.css' %}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!--
+    Comandas – Home (Django template)
+    • Pure HTML + CSS (styles scoped with .home)
+    • No frameworks / no React
+  -->
+
+  <title>Comandas | Home</title>
+  <meta name="description" content="Comandas – create, continue, and review restaurant orders. Add dishes and sides easily." />
+
+  <!-- Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Main stylesheet (now contains .home-only rules too) -->
+  <link rel="stylesheet" href="{% static 'comandas/css/styles.css' %}" />
 </head>
-<body>
-    <h1>Sistema de Comandas</h1>
 
-    <!-- Sección de pedidos -->
-    <div class="section">
-        <h2>Pedidos</h2>
-        <div class="buttons">
-            <button onclick="location.href='{% url 'crear_pedido' %}'">
-                🆕 Iniciar nuevos pedidos
-            </button>
-            <button onclick="window.open('{% url 'pedidos_pendientes' %}', '_blank')">
-                📋 Ver pedidos pendientes
-            </button>
-        </div>
+<body class="home">
+  <!-- ===== Header ===== -->
+  <header class="site-header" role="banner">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">🍽️</span>
+        <span class="brand-name">Comandas</span>
+      </div>
+      <p class="tagline">Fast, simple restaurant order management</p>
     </div>
+  </header>
 
-    <!-- Sección de configuración -->
-    <div class="section">
-        <h2>Configuración</h2>
-        <div class="buttons">
-            <button onclick="location.href='{% url 'crear_plato' %}'">
-                ➕ Agregar plato
-            </button>
-            <button onclick="location.href='{% url 'crear_guarnicion' %}'">
-                ➕ Agregar guarnición
-            </button>
+  <!-- ===== Main ===== -->
+  <main id="main" class="site-main" role="main">
+    <div class="container">
+      <h1 class="visually-hidden">Comandas — Order Management Home</h1>
+
+      <!-- Orders (primary) -->
+      <section aria-labelledby="orders-title" class="section">
+        <div class="section-head">
+          <h2 id="orders-title" class="section-title">Orders</h2>
+          <p class="section-sub">Create, continue, and review pending orders</p>
         </div>
+
+        <div class="card-grid primary-grid" role="list">
+          <a class="card" role="listitem" href="{% url 'crear_pedido' %}">
+            <span class="card-icon" aria-hidden="true">🆕</span>
+            <span class="card-title">New&nbsp;Order</span>
+          </a>
+
+          <a class="card" role="listitem" href="{% url 'pedidos_pendientes' %}">
+            <span class="card-icon" aria-hidden="true">📋</span>
+            <span class="card-title">View&nbsp;Pending</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Configuration -->
+      <section aria-labelledby="config-title" class="section">
+        <div class="section-head">
+          <h2 id="config-title" class="section-title">Configuration</h2>
+          <p class="section-sub">Manage dishes and sides</p>
+        </div>
+
+        <div class="card-grid" role="list">
+          <a class="card card--subtle" role="listitem" href="{% url 'crear_plato' %}">
+            <span class="card-icon" aria-hidden="true">➕</span>
+            <span class="card-title">Add&nbsp;Dish</span>
+          </a>
+
+          <a class="card card--subtle" role="listitem" href="{% url 'crear_guarnicion' %}">
+            <span class="card-icon" aria-hidden="true">➕</span>
+            <span class="card-title">Add&nbsp;Side</span>
+          </a>
+        </div>
+      </section>
     </div>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <small>© <span id="year"></span> Comandas. All rights reserved.</small>
+    </div>
+  </footer>
+
+  <!-- JS: dynamic current year -->
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
+

@@ -1,35 +1,26 @@
-/* ===== Estilos globales ===== */
+/* =========================================================
+   Existing styles – UNCHANGED
+   ========================================================= */
 body {
   font-family: Arial, sans-serif;
   margin: 2rem;
   background-color: #f3f3f3;
 }
 
-h1 {
-  margin-bottom: 1.5rem;
-}
+h1 { margin-bottom: 1.5rem; }
 
-.section {
-  margin-bottom: 2rem;
-}
+.section { margin-bottom: 2rem; }
+.section h2 { margin-bottom: 0.5rem; }
 
-.section h2 {
-  margin-bottom: 0.5rem;
-}
-
-/* ===== Botones ===== */
-.buttons {
-  display: flex;
-  gap: 1rem;
-}
-
+/* Buttons (generic) */
+.buttons { display: flex; gap: 1rem; }
 .buttons button {
   padding: 0.75rem 1.5rem;
   font-size: 1rem;
   cursor: pointer;
 }
 
-/* Estilo base de botón */
+/* Reusable buttons */
 .btn {
   padding: 0.5rem 1rem;
   border: none;
@@ -41,118 +32,142 @@ h1 {
   display: inline-block;
   font-weight: bold;
 }
+.btn-primary   { background-color: #007bff; }
+.btn-primary:hover   { background-color: #0056b3; }
+.btn-danger    { background-color: #dc3545; }
+.btn-danger:hover    { background-color: #b02a37; }
+.btn-secondary { background-color: #6c757d; }
+.btn-secondary:hover { background-color: #5a6268; }
 
-/* Botón primario (azul) */
-.btn-primary {
-  background-color: #007bff;
-}
-.btn-primary:hover {
-  background-color: #0056b3;
-}
+/* Containers & forms */
+.container { max-width: 600px; margin: 2rem auto; padding: 1rem; background:#f9f9f9; border-radius:8px; }
+.header h2, .list-container h3 { color:#333; margin-bottom:1rem; }
 
-/* Botón de peligro (rojo) */
-.btn-danger {
-  background-color: #dc3545;
-}
-.btn-danger:hover {
-  background-color: #b02a37;
-}
-
-/* Botón secundario (gris) */
-.btn-secondary {
-  background-color: #6c757d;
-}
-.btn-secondary:hover {
-  background-color: #5a6268;
-}
-
-/* ===== Contenedores ===== */
-.container {
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 1rem;
-  background: #f9f9f9;
-  border-radius: 8px;
-}
-
-.header h2,
-.list-container h3 {
-  color: #333;
-  margin-bottom: 1rem;
-}
-
-/* ===== Formularios ===== */
-.form-container {
-  margin-bottom: 1.5rem;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.25rem;
-  font-weight: bold;
-}
-
+.form-container { margin-bottom:1.5rem; }
+.form-group { margin-bottom:1rem; }
+.form-group label { display:block; margin-bottom:0.25rem; font-weight:bold; }
 .form-group input[type="text"],
 .form-group select,
 .form-group textarea {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;
 }
 
-/* ===== Lista de ítems en pedidos ===== */
-.item-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
+/* Item list */
+.item-list { list-style:none; padding:0; margin:0; }
+.item-list__entry { display:flex; justify-content:space-between; align-items:center; padding:0.75rem; border-bottom:1px solid #ddd; }
+.item-list__entry:last-child { border-bottom:none; }
+.item-list__text { font-size:1rem; color:#555; }
 
-.item-list__entry {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  border-bottom: 1px solid #ddd;
-}
+/* Separators */
+hr { border:none; height:1px; background:#ddd; margin:2rem 0; }
 
-.item-list__entry:last-child {
-  border-bottom: none;
-}
-
-.item-list__text {
-  font-size: 1rem;
-  color: #555;
-}
-
-/* ===== Separadores ===== */
-hr {
-  border: none;
-  height: 1px;
-  background: #ddd;
-  margin: 2rem 0;
-}
-
-/* ===== Estilos para pedidos pendientes ===== */
+/* Pending-orders grid */
 .grid-pedidos {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  width: 100%;
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px,1fr));
+  gap:1rem;
+  width:100%;
+}
+.card {
+  background:#fff;
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:1rem;
+  box-shadow:0 2px 4px rgba(0,0,0,.05);
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
 
-.card {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+/* =========================================================
+   NEW Home-page look (scoped with .home)
+   ========================================================= */
+.home {
+  /* warm radial background like the AI mock-up */
+  background:
+    radial-gradient(1200px 600px at 80% -10%, hsl(152 45% 34% / 0.08), transparent 60%),
+    radial-gradient(900px 500px at -10% 20%, hsl(26 90% 55% / 0.08), transparent 60%),
+    hsl(42 35% 98%);
+  margin:0; /* override 2 rem margin of base <body> only on .home */
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+/* Header */
+.home .site-header {
+  position:sticky; top:0; z-index:10;
+  background:linear-gradient(to bottom, hsl(42 35% 98%), hsl(42 35% 98% / .6));
+  backdrop-filter:blur(6px);
+  border-bottom:1px solid hsl(210 22% 90%);
+}
+.home .header-inner {
+  display:grid; gap:.25rem; padding:1.25rem .75rem;
+}
+.home .brand { display:inline-flex; align-items:center; gap:.6rem; }
+.home .brand-mark { font-size:1.35rem; line-height:1; }
+.home .brand-name { font-weight:700; letter-spacing:.2px; font-size:1.15rem; }
+.home .tagline { color:hsl(222 10% 40%); font-size:.95rem; margin:0; }
+
+/* Layout */
+.home .site-main { padding-block:2.2rem 3rem; }
+.home .section { margin-block:1.75rem 2.25rem; }
+.home .section-title { margin:0 0 .25rem 0; font-size:clamp(1.15rem,1rem + 1vw,1.4rem); }
+.home .section-sub { margin:0; color:hsl(222 10% 40%); font-size:.97rem; }
+
+/* Grid for cards */
+.home .card-grid {
+  display:grid; gap:1rem;
+  grid-template-columns:repeat(auto-fit, minmax(220px,1fr));
+}
+
+/* Card styles (ONLY for .home) */
+.home .card {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:152px; padding:1.25rem; border-radius:14px;
+  text-decoration:none; color:inherit;
+  background:linear-gradient(180deg,#fff,hsl(0 0% 100% / .7));
+  border:1px solid hsl(210 22% 90%);
+  box-shadow:0 8px 30px hsl(220 10% 30% / .08);
+  transition:transform .28s cubic-bezier(.2,.6,.2,1), box-shadow .28s cubic-bezier(.2,.6,.2,1);
+}
+.home .card:hover {
+  transform:translateY(-6px);
+  box-shadow:0 12px 40px hsl(220 10% 20% / .16);
+  border-color:hsl(152 45% 34% / .35);
+}
+.home .card:active { transform:translateY(-2px); }
+
+.home .card-icon {
+  font-size:clamp(32px,22px + 2.5vw,48px);
+  line-height:1;
+  margin-bottom:.55rem;
+}
+.home .card-title { font-weight:600; letter-spacing:.2px; }
+
+/* Subtle variant (configuration cards) */
+.home .card--subtle:hover {
+  border-color:hsl(26 90% 55% / .35);
+}
+
+/* Footer */
+.home .site-footer {
+  margin-top:2rem;
+  border-top:1px solid hsl(210 22% 90%);
+  background:hsl(42 35% 96%);
+}
+.home .footer-inner { padding:1.25rem .75rem; color:hsl(222 10% 40%); }
+
+/* Responsive tweaks only for home */
+@media (min-width:640px) {
+  .home .header-inner { grid-template-columns:auto 1fr; align-items:center; }
+  .home .tagline { justify-self:end; }
+  .home .card { min-height:168px; }
+}
+@media (min-width:1024px) {
+  .home .site-main { padding-block:2.75rem 4rem; }
+  .home .card { min-height:188px; }
+}
+/* Reduced-motion respect (home) */
+@media (prefers-reduced-motion:reduce) {
+  .home .card { transition:none; }
 }

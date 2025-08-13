@@ -7,7 +7,8 @@ from .forms import (
     ItemPedidoFormSet
 )
 from .models import Pedido, Plato, Guarnicion, ItemPedido
-from django.db.models import Sum
+from django.db.models import Sum, Count, Prefetch
+
 
 def crear_plato(request):
     if request.method == 'POST':
@@ -60,13 +61,15 @@ def crear_pedido(request):
     if request.method == 'POST':
         form = PedidoForm(request.POST)
         if form.is_valid():
-            pedido = form.save()
+            pedido = form.save(commit=False)
+            pedido.estado = 'borrador'  # Estado inicial del pedido
+            pedido.save()
             request.session['pedido_id'] = pedido.id
             return redirect('agregar_items')
     else:
         ultimo = Pedido.objects.order_by('-numero').first()
         siguiente = (ultimo.numero + 1) if ultimo else 1
-        form = PedidoForm(initial={'numero': siguiente})
+        form = PedidoForm(initial={'numero': siguiente, 'estado': 'borrador'})
 
     pedidos_existentes = Pedido.objects.all().annotate(
         total_cantidad=Sum('items__cantidad')
@@ -94,14 +97,36 @@ def agregar_items(request):
         'pedido': pedido,
         'formset': formset
     })
-    
+def pendientes_fragment(request):
+    pedidos = (
+        Pedido.objects
+        .filter(estado='pendiente')
+        .annotate(items_count=Count('items'))
+        .filter(items_count__gt=0)
+        .prefetch_related(
+            Prefetch('items', queryset=ItemPedido.objects.select_related('plato').prefetch_related('guarniciones'))
+        )
+        .order_by('numero')
+    )
+    return render(request, 'comandas/_pendientes_grid.html', {'pedidos': pedidos})
+
 def completar_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
     pedido.estado = 'entregado'
     pedido.save()
     return redirect('crear_pedido')
 
+@require_POST
 def finalizar_pedido(request):
+    pedido_id = request.session.get('pedido_id')
+    pedido = get_object_or_404(Pedido, id=pedido_id)
+
+    if not pedido.items.exists():
+        return redirect('agregar_item')
+
+    pedido.estado = 'pendiente'  # <- visible para cocina
+    pedido.save()
+
     request.session.pop('pedido_id', None)
     return redirect('crear_pedido')
 

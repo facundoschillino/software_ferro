@@ -1,0 +1,29 @@
+{% if pedidos %}
+  <div class="grid-pedidos">
+    {% for pedido in pedidos %}
+      <div class="card">
+        <div>
+          <h3>Pedido Nº {{ pedido.numero }}</h3>
+          <p><strong>Para llevar:</strong> {{ pedido.para_llevar|yesno:"Sí,No" }}</p>
+          <p><strong>Estado:</strong> {{ pedido.estado }}</p>
+          <p><strong>Ítems:</strong></p>
+          <ul>
+            {% for item in pedido.items.all %}
+              <li>
+                {{ item.cantidad }} x {{ item.plato.nombre }}
+                {% if item.guarniciones.all %}
+                  con {{ item.guarniciones.all|join:", " }}
+                {% endif %}
+                {% if item.comentario %}
+                  <br><em>Comentario:</em> "{{ item.comentario }}"
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p class="text-gray-600">No hay pedidos pendientes.</p>
+{% endif %}

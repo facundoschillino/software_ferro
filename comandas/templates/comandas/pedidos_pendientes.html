@@ -4,36 +4,31 @@
 <head>
   <meta charset="UTF-8">
   <title>Pedidos Pendientes</title>
-  <link rel="stylesheet" href="/static/comandas/css/styles.css">
+  <link rel="stylesheet" href="{% static 'comandas/css/styles.css' %}">
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
       background: #f3f3f3;
     }
-
     header {
       background: #222;
       color: white;
       padding: 1rem 2rem;
     }
-
     .page-title {
       margin: 0;
       font-size: 1.5rem;
     }
-
     .wrapper {
       padding: 1rem 2rem;
     }
-
     .grid-pedidos {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 1rem;
       width: 100%;
     }
-
     .card {
       background: white;
       border: 1px solid #ddd;
@@ -43,26 +38,22 @@
       display: flex;
       flex-direction: column;
     }
-
     .card h3 {
       font-size: 1.1rem;
       margin-bottom: 0.5rem;
     }
-
     .card ul {
       padding-left: 1rem;
       margin: 0.5rem 0 0;
     }
-
     .card li {
       font-size: 0.9rem;
       margin-bottom: 0.3rem;
     }
   </style>
-  <script>
-    // Recargar cada 10 segundos automáticamente
-    setInterval(() => window.location.reload(), 20000);
-  </script>
+
+  <!-- HTMX (para refrescar el listado sin recargar toda la página) -->
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
 <body>
 
@@ -71,36 +62,17 @@
   </header>
 
   <div class="wrapper">
-    {% if pedidos %}
-      <div class="grid-pedidos">
-        {% for pedido in pedidos %}
-          <div class="card">
-            <div>
-              <h3>Pedido Nº {{ pedido.numero }}</h3>
-              <p><strong>Para llevar:</strong> {{ pedido.para_llevar|yesno:"Sí,No" }}</p>
-              <p><strong>Estado:</strong> {{ pedido.estado }}</p>
-              <p><strong>Ítems:</strong></p>
-              <ul>
-                {% for item in pedido.items.all %}
-                  <li>
-                    {{ item.cantidad }} x {{ item.plato.nombre }}
-                    {% if item.guarniciones.all %}
-                      con {{ item.guarniciones.all|join:", " }}
-                    {% endif %}
-                    {% if item.comentario %}
-                      <br><em>Comentario:</em> "{{ item.comentario }}"
-                    {% endif %}
-                  </li>
-                {% endfor %}
-              </ul>
-            </div>
-          </div>
-        {% endfor %}
-      </div>
-    {% else %}
-      <p class="text-gray-600">No hay pedidos pendientes.</p>
-    {% endif %}
+    <!-- Contenedor que htmx actualiza automáticamente -->
+    <div id="grid-pendientes"
+         hx-get="{% url 'pendientes_fragment' %}"
+         hx-trigger="load, every 2s"
+         hx-swap="innerHTML">
+      <!-- Contenido inicial como fallback (primera carga sin JS) -->
+      {% include "comandas/_pendientes_grid.html" with pedidos=pedidos %}
+    </div>
   </div>
 
 </body>
 </html>
+
+

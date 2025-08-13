@@ -19,6 +19,7 @@ class Pedido(models.Model):
     para_llevar = models.BooleanField(default=False) #type: ignore
 
     ESTADO_CHOICES = [
+        ('borrador', 'Borrador'),
         ('pendiente', 'Pendiente'),
         ('entregado', 'Entregado'),
     ]

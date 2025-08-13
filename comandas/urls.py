@@ -3,7 +3,7 @@ from .views import (
     home,
     crear_plato, eliminar_plato,
     crear_guarnicion, eliminar_guarnicion,
-    crear_pedido, agregar_items, finalizar_pedido, crear_pedido,eliminar_todos_pedidos, eliminar_pedido, completar_pedido, pedidos_pendientes
+    crear_pedido, agregar_items, finalizar_pedido, crear_pedido,eliminar_todos_pedidos, eliminar_pedido, completar_pedido, pedidos_pendientes, pendientes_fragment
 )
 
 urlpatterns = [
@@ -19,6 +19,8 @@ urlpatterns = [
     path('pedidos/completar/<int:pedido_id>/', completar_pedido, name='completar_pedido'),
     path('pedidos_pendientes/', pedidos_pendientes, name='pedidos_pendientes'),
     path('pedidos/eliminar_todos/', eliminar_todos_pedidos, name='eliminar_todos_pedidos'),
+    path('pendientes/fragmento/', pendientes_fragment, name='pendientes_fragment'),
+
 
 
 ]
