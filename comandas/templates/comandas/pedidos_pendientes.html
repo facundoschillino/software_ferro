@@ -6,53 +6,125 @@
   <title>Pedidos Pendientes</title>
   <link rel="stylesheet" href="{% static 'comandas/css/styles.css' %}">
   <style>
+    :root{
+      --bg:#0f1115;
+      --card:#171a21;
+      --muted:#a9b1bb;
+      --text:#e7ecf2;
+      --accent:#ffd166;    /* resalta números / cantidades */
+      --carry:#ff5d5d;     /* badge LLEVAR */
+      --chip:#232834;      /* guarniciones */
+      --shadow:0 8px 18px rgba(0,0,0,.25);
+    }
+    * { box-sizing: border-box }
     body {
       margin: 0;
-      font-family: sans-serif;
-      background: #f3f3f3;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans";
+      background: var(--bg);
+      color: var(--text);
     }
     header {
-      background: #222;
-      color: white;
-      padding: 1rem 2rem;
+      position: sticky; top: 0; z-index: 10;
+      background: #0c0e12;
+      border-bottom: 1px solid #1e2530;
+      padding: .9rem 1.4rem;
     }
     .page-title {
       margin: 0;
-      font-size: 1.5rem;
+      font-size: 1.25rem;
+      letter-spacing: .3px;
     }
-    .wrapper {
-      padding: 1rem 2rem;
-    }
+    .wrapper { padding: 1rem 1.4rem; }
     .grid-pedidos {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
       gap: 1rem;
       width: 100%;
     }
     .card {
-      background: white;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      background: var(--card);
+      border: 1px solid #202634;
+      border-radius: 14px;
+      padding: .9rem;
+      box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
+      min-height: 140px;
     }
-    .card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 0.5rem;
+    .card-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: .8rem; margin-bottom: .6rem;
     }
-    .card ul {
-      padding-left: 1rem;
-      margin: 0.5rem 0 0;
+    .badge-num {
+      font-weight: 800; font-size: 1.6rem; line-height: 1;
+      background: #11151d; border: 1px solid #283244; color: var(--accent);
+      padding: .35rem .6rem; border-radius: 10px; letter-spacing: .5px;
     }
-    .card li {
-      font-size: 0.9rem;
-      margin-bottom: 0.3rem;
+    .meta {
+      display: flex; align-items: center; gap: .6rem;
+      color: var(--muted); font-size: .9rem;
+    }
+    .meta .pill {
+      background: #11151d; border: 1px solid #283244; color: var(--muted);
+      padding: .25rem .5rem; border-radius: 999px;
+    }
+    .items {
+      display: grid; gap: .5rem;
+      grid-auto-rows: minmax(44px, auto);
+    }
+    .item-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: start;
+      gap: .6rem;
+      background: #121722;
+      border: 1px solid #263049;
+      border-radius: 12px;
+      padding: .55rem .65rem;
+    }
+    .qty {
+      font-weight: 900; font-size: 1.4rem; min-width: 2.2ch; text-align: center;
+      color: var(--accent);
+    }
+    .main {
+      display: grid; gap: .25rem;
+    }
+    .plato {
+      font-weight: 800; font-size: 1.15rem; letter-spacing: .2px;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: .35rem; }
+    .chip {
+      font-size: 1rem;              /* más grande (antes 0.82rem) */
+      font-weight: 600;             /* semi-negrita */
+      color: #fff;                  /* más contraste */
+      background: #3a4255;          /* fondo más notorio */
+      border: 1px solid #4a5670;
+      padding: .25rem .6rem;        /* más aire */
+      border-radius: 8px;           /* menos “pastilla”, más cuadro suave */
+}
+
+    .coment {
+      font-size: .9rem; color: #d2d9e1; opacity: .85;
+      border-left: 2px solid #2f3a50; padding-left: .5rem;
+    }
+    .flag {
+      align-self: center; font-size: .78rem; font-weight: 800;
+      color: #111; background: var(--carry);
+      border: 2px solid #ff9a9a; border-radius: 999px;
+      padding: .25rem .5rem; letter-spacing: .6px;
+    }
+    /* estados vacíos */
+    .empty { color: var(--muted); text-align: center; padding: 3rem 0; }
+    /* mejor lectura en TVs 1080p+ */
+    @media (min-width: 1600px) {
+      .grid-pedidos { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 1.2rem; }
+      .badge-num { font-size: 1.8rem; }
+      .plato { font-size: 1.25rem; }
+      .qty { font-size: 1.6rem; }
     }
   </style>
 
-  <!-- HTMX (para refrescar el listado sin recargar toda la página) -->
+  <!-- HTMX (auto refresh del listado) -->
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
 <body>
@@ -62,17 +134,16 @@
   </header>
 
   <div class="wrapper">
-    <!-- Contenedor que htmx actualiza automáticamente -->
     <div id="grid-pendientes"
          hx-get="{% url 'pendientes_fragment' %}"
          hx-trigger="load, every 2s"
          hx-swap="innerHTML">
-      <!-- Contenido inicial como fallback (primera carga sin JS) -->
       {% include "comandas/_pendientes_grid.html" with pedidos=pedidos %}
     </div>
   </div>
 
 </body>
 </html>
+
 
 

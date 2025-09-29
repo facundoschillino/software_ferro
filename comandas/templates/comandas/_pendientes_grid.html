@@ -1,29 +1,48 @@
+{% comment %} Fragmento: _pendientes_grid.html {% endcomment %}
 {% if pedidos %}
   <div class="grid-pedidos">
     {% for pedido in pedidos %}
-      <div class="card">
-        <div>
-          <h3>Pedido Nº {{ pedido.numero }}</h3>
-          <p><strong>Para llevar:</strong> {{ pedido.para_llevar|yesno:"Sí,No" }}</p>
-          <p><strong>Estado:</strong> {{ pedido.estado }}</p>
-          <p><strong>Ítems:</strong></p>
-          <ul>
-            {% for item in pedido.items.all %}
-              <li>
-                {{ item.cantidad }} x {{ item.plato.nombre }}
-                {% if item.guarniciones.all %}
-                  con {{ item.guarniciones.all|join:", " }}
-                {% endif %}
-                {% if item.comentario %}
-                  <br><em>Comentario:</em> "{{ item.comentario }}"
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
+      <section class="card">
+        <div class="card-head">
+          <div class="badge-num">Nº {{ pedido.numero }}</div>
+          <div class="meta">
+            <span class="pill">{{ pedido.items.count }} ítem{{ pedido.items.count|pluralize:"s" }}</span>
+            {# Podés sumar aquí hora/mesa si tenés esos campos #}
+          </div>
         </div>
-      </div>
+
+        <div class="items">
+          {% for item in pedido.items.all %}
+            <div class="item-row">
+              <div class="qty">{{ item.cantidad }}</div>
+
+              <div class="main">
+                <div class="plato">{{ item.plato.nombre }}</div>
+
+                {% if item.guarniciones.all %}
+                  <div class="chips">
+                    {% for g in item.guarniciones.all %}
+                      <span class="chip">{{ g }}</span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                {% if item.comentario %}
+                  <div class="coment">“{{ item.comentario }}”</div>
+                {% endif %}
+              </div>
+
+              {% if item.para_llevar %}
+                <span class="flag">LLEVAR</span>
+              {% else %}
+                <!-- vacío (mesa/salon) -->
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </section>
     {% endfor %}
   </div>
 {% else %}
-  <p class="text-gray-600">No hay pedidos pendientes.</p>
+  <p class="empty">No hay pedidos pendientes.</p>
 {% endif %}

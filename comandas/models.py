@@ -16,7 +16,7 @@ class Guarnicion(models.Model):
 
 class Pedido(models.Model):
     numero = models.PositiveIntegerField(unique=True)
-    para_llevar = models.BooleanField(default=False) #type: ignore
+    
 
     ESTADO_CHOICES = [
         ('borrador', 'Borrador'),
@@ -34,6 +34,7 @@ class ItemPedido(models.Model):
     plato = models.ForeignKey(Plato, on_delete=models.CASCADE)
     cantidad = models.PositiveSmallIntegerField(default=1) #type: ignore
     guarniciones = models.ManyToManyField(Guarnicion, blank=True)
+    para_llevar = models.BooleanField(default=False) #type: ignore
     comentario = models.TextField(
         blank=True,
         help_text="Personalización del plato (sin sal, extra queso, etc.)"

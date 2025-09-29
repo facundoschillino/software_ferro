@@ -1,92 +1,143 @@
-{% load static %}
+{% load static widget_tweaks %}
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Agregar Ítems – Pedido {{ pedido.numero }}</title>
+  <!-- CSS general -->
   <link rel="stylesheet" href="{% static 'comandas/css/styles.css' %}">
+  <!-- CSS del builder (scopeado) -->
+  <link rel="stylesheet" href="{% static 'comandas/css/order-builder.css' %}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="container">
-    <a href="{% url 'crear_pedido' %}" class="btn btn-secondary">← Atrás</a>
-    <header>
-      <h2>Pedido N° {{ pedido.numero }}</h2>
-      <p>¿Es para llevar?: {{ pedido.para_llevar|yesno:"Sí,No" }}</p>
-    </header>
 
-    <!-- Formulario para agregar ítems -->
-    <section>
-      <h3>Agregar Plato</h3>
-      <form method="post">
-        {% csrf_token %}
-        {{ formset.management_form }}
-        {% for form in formset.forms %}
-          <div class="item-form mb-4 p-4 bg-card rounded-lg">
-            {{ form.id }}
+<div class="order-builder">
 
-            <div class="form-group">
-              {{ form.plato.label_tag }} {{ form.plato }}
-              {{ form.plato.errors }}
+  <!-- Header -->
+  <header class="order-builder__header">
+    <a href="{% url 'crear_pedido' %}" class="order-builder__back-btn">← Volver</a>
+    <h1 class="order-builder__title">Crear Pedido</h1>
+  </header>
+
+  <main class="order-builder__main">
+    <!-- Columna izquierda: Formulario (un único form que se reutiliza) -->
+    <section class="order-builder__form-section">
+      <div class="order-builder__card">
+        <h2 class="order-builder__section-title">Agregar ítem</h2>
+
+        <form method="post"
+              action="{% url 'agregar_items' pedido.id %}"
+              class="order-builder__form">
+          {% csrf_token %}
+          {{ formset.management_form }}
+
+          {# Usamos solo el primer form del formset (extra=1) para mantener un único formulario reutilizable #}
+          {% with f=formset.forms.0 %}
+            {{ f.id }}
+
+            <!-- Plato -->
+            <div class="order-builder__field">
+              <label for="{{ f.plato.id_for_label }}" class="order-builder__label">Plato</label>
+              {{ f.plato|add_class:"order-builder__select" }}
+              {{ f.plato.errors }}
             </div>
 
-            <div class="form-group">
-              {{ form.cantidad.label_tag }} {{ form.cantidad }}
-              {{ form.cantidad.errors }}
+            <!-- Cantidad -->
+            <div class="order-builder__field">
+              <label for="{{ f.cantidad.id_for_label }}" class="order-builder__label">Cantidad</label>
+              {{ f.cantidad|add_class:"order-builder__select" }}
+              {{ f.cantidad.errors }}
             </div>
 
-            <div class="form-group">
-              {{ form.guarniciones.label_tag }} {{ form.guarniciones }}
-              {{ form.guarniciones.errors }}
-            </div>
+            <!-- Guarniciones -->
+            <fieldset class="order-builder__fieldset">
+              <legend class="order-builder__legend">Guarniciones</legend>
+              <div class="order-builder__checkbox-group">
+                {{ f.guarniciones }}
+              </div>
+              {{ f.guarniciones.errors }}
+            </fieldset>
 
-            <div class="form-group">
-              {{ form.comentario.label_tag }} {{ form.comentario }}
-              {{ form.comentario.errors }}
+            <!-- Comentario -->
+            <div class="order-builder__field">
+              <label for="{{ f.comentario.id_for_label }}" class="order-builder__label">Comentario</label>
+              {{ f.comentario|add_class:"order-builder__textarea" }}
+              {{ f.comentario.errors }}
             </div>
+          {% endwith %}
 
-            {% if form.can_delete %}
-              <div class="form-group">
-                {{ form.DELETE }} <label>Eliminar</label>
+          <button type="submit" class="order-builder__btn order-builder__btn--primary">
+            Agregar ítem
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Columna derecha: Resumen -->
+    <section class="order-builder__summary-section">
+      <div class="order-builder__card order-builder__summary-card">
+        <div class="order-builder__summary-header">
+          <h2 class="order-builder__section-title">Pedido Nº {{ pedido.numero }}</h2>
+          <div class="order-builder__total-quantity">
+            Ítems:
+            <strong>{{ pedido.items.count }}</strong>
+          </div>
+        </div>
+
+        <div class="order-builder__summary-content">
+          <div id="items-list" class="order-builder__items-list" aria-live="polite">
+            {% if pedido.items.count %}
+              {% for item in pedido.items.all %}
+                <div class="order-builder__item">
+                  <div class="order-builder__item-header">
+                    <h3 class="order-builder__item-title">
+                      {{ item.plato.nombre }}
+                    </h3>
+                    <span class="order-builder__item-quantity">{{ item.cantidad }}</span>
+                  </div>
+
+                  {% if item.guarniciones.all %}
+                    <div class="order-builder__item-sides">
+                      {% for g in item.guarniciones.all %}
+                        <span class="order-builder__side-badge">{{ g.nombre }}</span>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+
+                  {% if item.comentario %}
+                    <p class="order-builder__item-notes">"{{ item.comentario }}"</p>
+                  {% endif %}
+
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="order-builder__empty-state">
+                <div class="order-builder__empty-icon">🍽️</div>
+                <p class="order-builder__empty-text">No hay ítems en el pedido</p>
+                <p class="order-builder__empty-subtext">Cargalos con el formulario de la izquierda</p>
               </div>
             {% endif %}
           </div>
-        {% endfor %}
+        </div>
 
-        <button type="submit" class="btn btn-secondary">Agregar Ítem</button>
-      </form>
+        <div class="order-builder__summary-footer">
+          <form method="post" action="{% url 'finalizar_pedido' %}">
+            {% csrf_token %}
+            <button type="submit"
+                    class="order-builder__btn order-builder__btn--primary order-builder__btn--full"
+                    {% if not pedido.items.count %}disabled{% endif %}>
+              Finalizar pedido
+            </button>
+          </form>
+        </div>
+      </div>
     </section>
+  </main>
+</div>
 
-    <hr>
-
-    <!-- Resumen del pedido -->
-    <section>
-      <h3>Resumen del Pedido</h3>
-      {% if pedido.items.exists %}
-        <ul>
-          {% for item in pedido.items.all %}
-            <li>
-              {{ item.cantidad }} x {{ item.plato.nombre }}
-              {% if item.guarniciones.all %}
-                con {{ item.guarniciones.all|join:", " }}
-              {% endif %}
-              {% if item.comentario %}
-                ({{ item.comentario }})
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-
-        <!-- Finalizar -->
-        <form method="post" action="{% url 'finalizar_pedido' %}">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-primary mt-4">Finalizar Pedido</button>
-        </form>
-
-      {% else %}
-        <p>No hay ítems cargados aún.</p>
-      {% endif %}
-    </section>
-
-  </div>
 </body>
 </html>

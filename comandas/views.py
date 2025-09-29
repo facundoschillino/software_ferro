@@ -50,22 +50,17 @@ def eliminar_guarnicion(request, guarnicion_id):
     guarnicion.delete()
     return redirect('crear_guarnicion')
 
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Pedido, ItemPedido
-from .forms import PedidoForm, ItemPedidoForm
-
-from django.shortcuts import redirect
-from .models import Pedido
-
 def crear_pedido(request):
     if request.method == 'POST':
         form = PedidoForm(request.POST)
         if form.is_valid():
             pedido = form.save(commit=False)
-            pedido.estado = 'borrador'  # Estado inicial del pedido
+            # si usas estado inicial "borrador":
+            # pedido.estado = 'borrador'
             pedido.save()
+            # guarda el id en sesión si lo usas luego en finalizar
             request.session['pedido_id'] = pedido.id
-            return redirect('agregar_items')
+            return redirect('agregar_items', pedido_id=pedido.id)
     else:
         ultimo = Pedido.objects.order_by('-numero').first()
         siguiente = (ultimo.numero + 1) if ultimo else 1
@@ -84,18 +79,28 @@ def eliminar_pedido(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
     pedido.delete()
     return redirect('crear_pedido')
-def agregar_items(request):
-    pedido_id = request.session.get('pedido_id')
-    if not pedido_id:
-        return redirect('crear_pedido')
+def agregar_items(request, pedido_id):
     pedido = get_object_or_404(Pedido, id=pedido_id)
-    formset = ItemPedidoFormSet(request.POST or None, instance=pedido)
+
+    # MUY IMPORTANTE: limitamos el formset a SOLO el form vacío (extra=1)
+    formset = ItemPedidoFormSet(
+        request.POST or None,
+        instance=pedido,
+        queryset=ItemPedido.objects.none(),  # <- clave para que siempre haya un único form vacío
+    )
+
     if request.method == 'POST' and formset.is_valid():
+        # Guardará el form vacío si se completó; Django ignora forms vacíos
         formset.save()
-        return redirect('agregar_items')
+        return redirect('agregar_items', pedido_id=pedido.id)
+
+    # Para el resumen a la derecha, traemos todos los ítems ya cargados
+    items = pedido.items.select_related('plato').prefetch_related('guarniciones')
+
     return render(request, 'comandas/agregar_item.html', {
         'pedido': pedido,
-        'formset': formset
+        'formset': formset,
+        'items': items,
     })
 def pendientes_fragment(request):
     pedidos = (
